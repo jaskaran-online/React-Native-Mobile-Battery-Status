@@ -17,17 +17,34 @@ export default function App() {
 
   onBatteryStateChanged = (batteryStatus) => {
     setBatteryCharging(batteryStatus.charging);
-    // setBatteryLevel(Math.round(batteryStatus.level * 100));
-    setBatteryLevel(30);
+    setBatteryLevel(Math.round(batteryStatus.level * 100));
+    // setBatteryLevel(51);
 
     let color =
       batteryLevel <= 20
         ? '#F0001D'
-        : batteryLevel >= 85
+        : batteryLevel >= 80
         ? '#4A90E2'
-        : '#5EAF00';
+        : '#4A8B00';
     setBatteryLevelColor(color);
   };
+
+  DeviceBattery.getBatteryLevel().then((level) => {
+    setBatteryLevel(Math.round(level * 100));
+    // setBatteryLevel(90);
+
+    let color =
+      batteryLevel <= 20
+        ? '#F0001D'
+        : batteryLevel >= 80
+        ? '#4A90E2'
+        : '#4A8B00';
+    setBatteryLevelColor(color);
+  });
+
+  DeviceBattery.isCharging().then((isCharging) => {
+    setBatteryCharging(isCharging);
+  });
 
   DeviceBattery.addListener(onBatteryStateChanged);
 
@@ -51,37 +68,38 @@ export default function App() {
 
         {batteryLevel <= 20 ? (
           <LottieView
-            source={require('./assets/redlayer.json')}
+            source={require('./assets/red.json')}
             autoPlay
             loop
             style={{
               position: 'absolute',
-              width: '80%',
+              width: '90%',
+              height: '50%',
               bottom: batteryLevel - 4,
-              transform: [{rotate: '90deg'}],
             }}
           />
-        ) : batteryLevel >= 85 ? (
+        ) : batteryLevel >= 80 ? (
           <LottieView
-            source={require('./assets/bluelayer.json')}
+            source={require('./assets/blue.json')}
             autoPlay
             loop
-            // style={{
-            //   // position: 'absolute',
-            //   width: '80%',
-            //   // bottom: batteryLevel - 4,
-            //   transform: [{rotate: '90deg'}],
-            // }}
+            style={{
+              position: 'absolute',
+              width: '90%',
+              height: '50%',
+              bottom: batteryLevel + 50,
+            }}
           />
         ) : (
           <LottieView
-            source={require('./assets/greenlayer.json')}
+            source={require('./assets/green.json')}
             autoPlay
             loop
             style={{
               position: 'absolute',
-              width: '80%',
-              bottom: batteryLevel - 3,
+              width: '90%',
+              height: '50%',
+              bottom: batteryLevel + 20,
             }}
           />
         )}
@@ -94,7 +112,7 @@ export default function App() {
                 ? 'yellow'
                 : batteryLevel <= 20
                 ? '#F0001D'
-                : batteryLevel > 43
+                : batteryLevel > 25
                 ? 'black'
                 : '#4A90E2',
             fontSize: 55,
@@ -158,6 +176,8 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: 'contain',
     zIndex: 99999,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   chargingText: {
     fontSize: 33,
