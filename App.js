@@ -1,56 +1,91 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, Image, StatusBar} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  StatusBar,
+  SafeAreaView,
+} from 'react-native';
 import DeviceBattery from 'react-native-device-battery';
 import LottieView from 'lottie-react-native';
 
 export default function App() {
   const [batteryLevel, setBatteryLevel] = useState(0);
-  const [batteryLevelColor, setBatteryLevelColor] = useState('green');
+  const [batteryLevelColor, setBatteryLevelColor] = useState('white');
   const [isBatteryCharging, setBatteryCharging] = useState(false);
 
-  DeviceBattery.getBatteryLevel().then((level) => {
-    setBatteryLevel(Math.round(level * 100));
-    // setBatteryLevel(10);
+  onBatteryStateChanged = (batteryStatus) => {
+    setBatteryCharging(batteryStatus.charging);
+    // setBatteryLevel(Math.round(batteryStatus.level * 100));
+    setBatteryLevel(30);
 
     let color =
-      batteryLevel <= 20 ? 'red' : batteryLevel >= 85 ? 'dodgerblue' : 'green';
+      batteryLevel <= 20
+        ? '#F0001D'
+        : batteryLevel >= 85
+        ? '#4A90E2'
+        : '#5EAF00';
     setBatteryLevelColor(color);
-  });
+  };
 
-  DeviceBattery.isCharging().then((isCharging) => {
-    setBatteryCharging(isCharging);
-  });
+  DeviceBattery.addListener(onBatteryStateChanged);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={batteryLevelColor} />
-      <View
-        style={{
-          height: '50%',
-          width: '100%',
-          justifyContent: 'center',
-          alignItems: 'center',
-          color: 'white',
-          backgroundColor: 'white',
-        }}>
+      <View style={styles.innerContainer}>
         <Image
           source={require('./assets/battery.png')}
-          style={{
-            resizeMode: 'cover',
-            height: '100%',
-            width: '100%',
-            zIndex: 99999,
-          }}
+          style={styles.backgroundImg}
         />
         <View
-          style={{
-            backgroundColor: batteryLevelColor,
-            height: batteryLevel + '%',
-            width: '100%',
-            bottom: 1,
-            position: 'absolute',
-          }}
+          style={[
+            styles.batteryLevelStyle,
+            {
+              backgroundColor: batteryLevelColor,
+              height: batteryLevel + '%',
+            },
+          ]}
         />
+
+        {batteryLevel <= 20 ? (
+          <LottieView
+            source={require('./assets/redlayer.json')}
+            autoPlay
+            loop
+            style={{
+              position: 'absolute',
+              width: '80%',
+              bottom: batteryLevel - 4,
+              transform: [{rotate: '90deg'}],
+            }}
+          />
+        ) : batteryLevel >= 85 ? (
+          <LottieView
+            source={require('./assets/bluelayer.json')}
+            autoPlay
+            loop
+            // style={{
+            //   // position: 'absolute',
+            //   width: '80%',
+            //   // bottom: batteryLevel - 4,
+            //   transform: [{rotate: '90deg'}],
+            // }}
+          />
+        ) : (
+          <LottieView
+            source={require('./assets/greenlayer.json')}
+            autoPlay
+            loop
+            style={{
+              position: 'absolute',
+              width: '80%',
+              bottom: batteryLevel - 3,
+            }}
+          />
+        )}
+
         <Text
           allowFontScaling={false}
           style={{
@@ -58,10 +93,10 @@ export default function App() {
               batteryLevel >= 55
                 ? 'yellow'
                 : batteryLevel <= 20
-                ? 'red'
+                ? '#F0001D'
                 : batteryLevel > 43
                 ? 'black'
-                : 'dodgerblue',
+                : '#4A90E2',
             fontSize: 55,
             position: 'absolute',
             fontWeight: 'bold',
@@ -69,17 +104,24 @@ export default function App() {
           {batteryLevel}%
         </Text>
         {isBatteryCharging ? (
-          <LottieView
-            source={require('./assets/charging.json')}
-            autoPlay
-            loop
+          <View
             style={{
-              height: 90,
-              width: 90,
+              height: 70,
+              width: 70,
               position: 'absolute',
-              bottom: 10,
-            }}
-          />
+              bottom: 30,
+              backgroundColor: '#1c1c1c',
+              borderRadius: 100,
+              elevation: 6,
+              borderWidth: 0.6,
+              borderColor: '#1c1c1c',
+            }}>
+            <LottieView
+              source={require('./assets/charging.json')}
+              autoPlay
+              loop
+            />
+          </View>
         ) : null}
       </View>
 
@@ -98,17 +140,11 @@ export default function App() {
       {isBatteryCharging ? (
         <Text
           allowFontScaling={false}
-          style={{
-            fontSize: 33,
-            fontWeight: '700',
-            color: batteryLevelColor,
-            marginTop: 20,
-            elevation: 10,
-          }}>
+          style={[styles.chargingText, {color: batteryLevelColor}]}>
           Charger Connected
         </Text>
       ) : null}
-    </View>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
@@ -116,6 +152,26 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'white',
+  },
+  backgroundImg: {
+    flex: 1,
+    resizeMode: 'contain',
+    zIndex: 99999,
+  },
+  chargingText: {
+    fontSize: 33,
+    fontWeight: '700',
+    marginTop: 20,
+    elevation: 10,
+  },
+  batteryLevelStyle: {width: '55%', bottom: 1, position: 'absolute'},
+  innerContainer: {
+    height: '50%',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    color: 'white',
     backgroundColor: 'white',
   },
 });
