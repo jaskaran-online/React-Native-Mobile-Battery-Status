@@ -1,114 +1,121 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
+import React, {useState, useEffect} from 'react';
+import {View, Text, StyleSheet, Image, StatusBar} from 'react-native';
+import DeviceBattery from 'react-native-device-battery';
+import LottieView from 'lottie-react-native';
 
-import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-} from 'react-native';
+export default function App() {
+  const [batteryLevel, setBatteryLevel] = useState(0);
+  const [batteryLevelColor, setBatteryLevelColor] = useState('green');
+  const [isBatteryCharging, setBatteryCharging] = useState(false);
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  DeviceBattery.getBatteryLevel().then((level) => {
+    setBatteryLevel(Math.round(level * 100));
+    // setBatteryLevel(10);
 
-const App: () => React$Node = () => {
+    let color =
+      batteryLevel <= 20 ? 'red' : batteryLevel >= 85 ? 'dodgerblue' : 'green';
+    setBatteryLevelColor(color);
+  });
+
+  DeviceBattery.isCharging().then((isCharging) => {
+    setBatteryCharging(isCharging);
+  });
+
   return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
-  );
-};
+    <View style={styles.container}>
+      <StatusBar backgroundColor={batteryLevelColor} />
+      <View
+        style={{
+          height: '50%',
+          width: '100%',
+          justifyContent: 'center',
+          alignItems: 'center',
+          color: 'white',
+          backgroundColor: 'white',
+        }}>
+        <Image
+          source={require('./assets/battery.png')}
+          style={{
+            resizeMode: 'cover',
+            height: '100%',
+            width: '100%',
+            zIndex: 99999,
+          }}
+        />
+        <View
+          style={{
+            backgroundColor: batteryLevelColor,
+            height: batteryLevel + '%',
+            width: '100%',
+            bottom: 1,
+            position: 'absolute',
+          }}
+        />
+        <Text
+          allowFontScaling={false}
+          style={{
+            color:
+              batteryLevel >= 55
+                ? 'yellow'
+                : batteryLevel <= 20
+                ? 'red'
+                : batteryLevel > 43
+                ? 'black'
+                : 'dodgerblue',
+            fontSize: 55,
+            position: 'absolute',
+            fontWeight: 'bold',
+          }}>
+          {batteryLevel}%
+        </Text>
+        {isBatteryCharging ? (
+          <LottieView
+            source={require('./assets/charging.json')}
+            autoPlay
+            loop
+            style={{
+              height: 90,
+              width: 90,
+              position: 'absolute',
+              bottom: 10,
+            }}
+          />
+        ) : null}
+      </View>
 
+      <Text
+        allowFontScaling={false}
+        style={{
+          fontSize: 30,
+          marginTop: 30,
+          fontWeight: 'bold',
+          color: 'black',
+        }}>
+        {' '}
+        Battery Level {batteryLevel}%
+      </Text>
+
+      {isBatteryCharging ? (
+        <Text
+          allowFontScaling={false}
+          style={{
+            fontSize: 33,
+            fontWeight: '700',
+            color: batteryLevelColor,
+            marginTop: 20,
+            elevation: 10,
+          }}>
+          Charger Connected
+        </Text>
+      ) : null}
+    </View>
+  );
+}
 const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
-  },
-  engine: {
-    position: 'absolute',
-    right: 0,
-  },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
   },
 });
-
-export default App;

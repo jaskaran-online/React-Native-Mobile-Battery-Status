@@ -1,4 +1,6 @@
 rootProject.name = 'BatteryInfo'
+include ':lottie-react-native'
+project(':lottie-react-native').projectDir = new File(rootProject.projectDir, '../node_modules/lottie-react-native/src/android')
 include ':react-native-device-battery'
 project(':react-native-device-battery').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-device-battery/android')
 apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)

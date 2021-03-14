@@ -10,6 +10,8 @@ target 'BatteryInfo' do
 
   pod 'react-native-device-battery', :path => '../node_modules/react-native-device-battery'
 
+  pod 'lottie-react-native', :path => '../node_modules/lottie-react-native'
+
   target 'BatteryInfoTests' do
     inherit! :complete
     # Pods for testing
